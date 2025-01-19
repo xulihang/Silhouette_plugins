@@ -6,7 +6,7 @@ Plugins for Silhouette
 
 Models in Whisper.cpp's format: [link](https://huggingface.co/ggerganov/whisper.cpp) [国内站点](https://hf-mirror.com/ggerganov/whisper.cpp)
 
-Directly link of some multiple language models:
+Directly link of some multilingual models:
 
 * small: [link](https://huggingface.co/ggerganov/whisper.cpp/blob/main/ggml-small.bin) [国内站点](https://hf-mirror.com/ggerganov/whisper.cpp/blob/main/ggml-small.bin)
 * medium: [link](https://huggingface.co/ggerganov/whisper.cpp/blob/main/ggml-medium.bin) [国内站点](https://hf-mirror.com/ggerganov/whisper.cpp/blob/main/ggml-medium.bin)
