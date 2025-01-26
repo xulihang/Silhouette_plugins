@@ -52,8 +52,14 @@ Public Sub recognize(path As String,lang As String,preferences As Map) As Resuma
 	fd.Dir = File.GetFileParent(path)
 	fd.FileName = File.GetName(path)
 	fd.ContentType = "audio/wav"
-	Dim url As String = getMap("fasterWhisper",getMap("api",preferences)).GetDefault("url",defaultURL)
-	Dim modelSize As String = getMap("fasterWhisper",getMap("api",preferences)).GetDefault("model_size",defaultModelSize)
+	Dim url As String = defaultURL
+	Dim modelSize As String = defaultModelSize
+	Try
+		url = getMap("fasterWhisper",getMap("api",preferences)).GetDefault("url",defaultURL)
+		modelSize = getMap("fasterWhisper",getMap("api",preferences)).GetDefault("model_size",defaultModelSize)
+	Catch
+		Log(LastException)
+	End Try
 	job.PostMultipart(url,CreateMap("model":modelSize), Array(fd))
 	job.GetRequest.Timeout=240*1000
 	Wait For (job) JobDone(job As HttpJob)
