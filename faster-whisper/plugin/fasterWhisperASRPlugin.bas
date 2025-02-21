@@ -6,7 +6,7 @@ Version=4.2
 @EndOfDesignText@
 Sub Class_Globals
 	Private fx As JFX
-	Private defaultModelSize As String = "medium"
+	Private defaultModelSize As String = "small"
 	Private defaultEndPoint As String = "http://127.0.0.1:8889/"
 End Sub
 
