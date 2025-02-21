@@ -13,8 +13,14 @@ total_duration = 0.0
 current_seconds = 0.0
 exit_flag = 0
 
+def clear_uploaded():
+    for filename in os.listdir('./uploaded/'):
+        file_path = "{path}/{file}".format(path='./uploaded/', file=filename)
+        os.remove(file_path)
+
 @route('/recognize', method='POST')
 def recognize():
+    clear_uploaded()
     upload = request.files.get('upload')
     p_model_size = request.forms.get('model')
     name, ext = os.path.splitext(upload.filename)
@@ -49,6 +55,7 @@ def recognize():
     
 @route('/recognizelongfile', method='POST')
 def recognize_longfile():
+    clear_uploaded()
     upload = request.files.get('upload')
     p_model_size = request.forms.get('model')
     name, ext = os.path.splitext(upload.filename)
@@ -121,6 +128,8 @@ def transcribe(segments):
 def server_static(filepath):
     return static_file(filepath, root='www')
 
-model_size = "small"
-model = WhisperModel(model_size, device="cpu", compute_type="int8")
-run(server="paste",host='0.0.0.0', port=8889)  
+if __name__ == '__main__':
+    clear_uploaded()
+    model_size = "small"
+    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    run(server="paste",host='0.0.0.0', port=8889)  
