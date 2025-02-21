@@ -36,6 +36,8 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			Return lines
 		Case "recognizeLongFile"
 			wait for (recognizeLongFile(Params.Get("path"),Params.Get("lang"),Params.Get("preferencesMap"))) complete (done As Object)
+		Case "stop"
+			wait for (stop(Params.Get("preferencesMap"))) complete (done As Object)
 		Case "getProgress"
 			wait for (getProgress(Params.Get("preferencesMap"))) complete (progress As Map)
 			Return progress
@@ -46,6 +48,31 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			Return CreateMap("url": defaultEndPoint, _
 			                 "model_size": defaultModelSize)
 	End Select
+	Return ""
+End Sub
+
+
+Public Sub stop(preferences As Map) As ResumableSub
+	Dim job As HttpJob
+	job.Initialize("",Me)
+	Dim url As String = defaultEndPoint
+	Try
+		url = getMap("fasterWhisper",getMap("api",preferences)).GetDefault("url",defaultEndPoint)
+	Catch
+		Log(LastException)
+	End Try
+	url = url&"stop"
+	job.Download(url)
+	job.GetRequest.Timeout=240*1000
+	Wait For (job) JobDone(job As HttpJob)
+	If job.Success Then
+		Try
+			Log(job.GetString)
+		Catch
+			Log(LastException)
+		End Try
+	End If
+	job.Release
 	Return ""
 End Sub
 

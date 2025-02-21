@@ -11,6 +11,7 @@ import _thread
 file_lines = []
 total_duration = 0.0
 current_seconds = 0.0
+exit_flag = 0
 
 @route('/recognize', method='POST')
 def recognize():
@@ -53,6 +54,8 @@ def recognize_longfile():
     name, ext = os.path.splitext(upload.filename)
     if ext.lower() not in ('.wav','.mp3','.m4a'):
         return "File extension not allowed."
+    global exit_flag
+    exit_flag = 0
     global model_size
     global model
     if p_model_size != model_size:
@@ -94,6 +97,11 @@ def get_result():
     ret = {}
     ret["lines"] = file_lines
     return ret
+
+@route('/stop', method=['GET', 'POST'])
+def stop():
+    global exit_flag
+    exit_flag = 1
     
 def transcribe(segments):
     global current_seconds
@@ -105,6 +113,8 @@ def transcribe(segments):
         line = {"start":segment.start, "end":segment.end, "text":segment.text}
         current_seconds = segment.end
         file_lines.append(line)
+        if exit_flag == 1:
+            break
     current_seconds = total_duration
 
 @route('/<filepath:path>')
