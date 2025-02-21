@@ -36,11 +36,17 @@ Sub AppStart (Form1 As Form, Args() As String)
 	n.Initialize
 	Dim map1 As Map
 	map1.Initialize
-	map1.Put("url","http://192.168.0.115:8889/recognize")
+	map1.Put("url","http://127.0.0.1:8889/")
+	map1.Put("model_size","small")
 	Dim pref As Map
 	pref.Initialize
 	pref.Put("api",CreateMap("fasterWhisper":map1))
-	n.recognize(File.Combine(File.DirApp,"test.wav"),"auto",pref)
+	n.recognizeLongFile(File.Combine(File.DirApp,"test.wav"),"auto",pref)
+	Sleep(15000)
+	wait for (n.getProgress(pref)) complete (progress As Map)
+	Log(progress)
+	wait for (n.getResult(pref)) complete (lines As List)
+	Log(lines)
 End Sub
 
 'Return true to allow the default exceptions handler to handle the uncaught exception.
