@@ -38,8 +38,10 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			wait for (recognizeLongFile(Params.Get("path"),Params.Get("lang"),Params.Get("preferencesMap"))) complete (done As Object)
 		Case "getProgress"
 			wait for (getProgress(Params.Get("preferencesMap"))) complete (progress As Map)
+			Return progress
 		Case "getResult"
 			wait for (getResult(Params.Get("preferencesMap"))) complete (lines As List)
+			Return lines
 		Case "getDefaultParamValues"
 			Return CreateMap("url": defaultEndPoint, _
 			                 "model_size": defaultModelSize)
@@ -95,10 +97,12 @@ Public Sub getProgress(preferences As Map) As ResumableSub
 	Wait For (job) JobDone(job As HttpJob)
 	If job.Success Then
 		Try
-			Log(job.GetString)
 			Dim json As JSONParser
 			json.Initialize(job.GetString)
-			progress = json.NextObject
+			Dim map1 As Map = json.NextObject
+			For Each key As String In map1.Keys
+				progress.Put(key,map1.Get(key))
+			Next
 		Catch
 			Log(LastException)
 		End Try

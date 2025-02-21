@@ -38,11 +38,12 @@ Sub AppStart (Form1 As Form, Args() As String)
 	map1.Initialize
 	map1.Put("url","http://127.0.0.1:8889/")
 	map1.Put("model_size","small")
+	Log(map1)
 	Dim pref As Map
 	pref.Initialize
 	pref.Put("api",CreateMap("fasterWhisper":map1))
-	n.recognizeLongFile(File.Combine(File.DirApp,"test.wav"),"auto",pref)
-	Sleep(15000)
+	wait for (n.recognizeLongFile(File.Combine(File.DirApp,"test.wav"),"auto",pref)) complete (done As Object)
+	Sleep(2000)
 	wait for (n.getProgress(pref)) complete (progress As Map)
 	Log(progress)
 	wait for (n.getResult(pref)) complete (lines As List)
