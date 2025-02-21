@@ -72,6 +72,8 @@ def recognize_longfile():
     print(segments)
     print(info)
     global total_duration
+    global current_seconds
+    current_seconds = 0
     total_duration = info.duration
     _thread.start_new_thread(transcribe, (segments,))
     ret["success"] = True
