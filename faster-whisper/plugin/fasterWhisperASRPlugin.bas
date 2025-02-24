@@ -156,7 +156,7 @@ Public Sub recognizeLongFile(path As String,lang As String,preferences As Map) A
 		Log(LastException)
 	End Try
 	url = url&"recognizelongfile"
-	job.PostMultipart(url,CreateMap("model":modelSize), Array(fd))
+	job.PostMultipart(url,CreateMap("model":modelSize,"lang":lang), Array(fd))
 	job.GetRequest.Timeout=240*1000
 	Wait For (job) JobDone(job As HttpJob)
 	If job.Success Then
@@ -186,7 +186,7 @@ Public Sub recognize(path As String,lang As String,preferences As Map) As Resuma
 		Log(LastException)
 	End Try
 	url = url&"recognize"
-	job.PostMultipart(url,CreateMap("model":modelSize), Array(fd))
+	job.PostMultipart(url,CreateMap("model":modelSize,"lang":lang), Array(fd))
 	job.GetRequest.Timeout=240*1000
 	Wait For (job) JobDone(job As HttpJob)
 	If job.Success Then

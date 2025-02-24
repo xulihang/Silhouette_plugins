@@ -23,6 +23,8 @@ def recognize():
     clear_uploaded()
     upload = request.files.get('upload')
     p_model_size = request.forms.get('model')
+    p_lang = request.forms.get('lang')
+    print(p_lang)
     name, ext = os.path.splitext(upload.filename)
     if ext.lower() not in ('.wav','.mp3','.m4a'):
         return "File extension not allowed."
@@ -42,7 +44,7 @@ def recognize():
     upload.save(file_path)        
     ret = {}
     lines = []
-    segments, info = model.transcribe(file_path, beam_size=5, log_progress=True)
+    segments, info = model.transcribe(file_path, language=p_lang, beam_size=5, log_progress=True)
     print(segments)
     print(info)
     for segment in segments:
@@ -58,6 +60,7 @@ def recognize_longfile():
     clear_uploaded()
     upload = request.files.get('upload')
     p_model_size = request.forms.get('model')
+    p_lang = request.forms.get('lang')
     name, ext = os.path.splitext(upload.filename)
     if ext.lower() not in ('.wav','.mp3','.m4a'):
         return "File extension not allowed."
@@ -78,7 +81,7 @@ def recognize_longfile():
         os.remove(file_path)
     upload.save(file_path)        
     ret = {}
-    segments, info = model.transcribe(file_path, beam_size=5)
+    segments, info = model.transcribe(file_path, language=p_lang, beam_size=5)
     print(segments)
     print(info)
     global total_duration
