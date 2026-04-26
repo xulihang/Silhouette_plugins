@@ -86,7 +86,7 @@ Public Sub recognize(paths As List,lang As String,preferences As Map) As Resumab
 	If os = "mac" Then
 		exe = "ASR"
 	Else
-		Dim exe As String = "python"
+		Dim exe As String = File.Combine(File.DirApp,"Qwen3-ASR\python\python.exe")
 		If os = "linux" Then
 			exe = "python3"
 		End If
