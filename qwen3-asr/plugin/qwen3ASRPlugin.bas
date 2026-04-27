@@ -85,6 +85,15 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			Else
 				Return False
 			End If
+		Case "getSetupParams"
+			Dim o As Object = CreateMap("readme":"https://github.com/xulihang/Silhouette_plugins/tree/main/qwen3-asr")
+			Return o
+		Case "getIsInstalledOrRunning"
+			If File.Exists(File.DirApp,"Qwen3-ASR") Then
+				Return True
+			Else
+				Return False
+			End If
 	End Select
 	Return ""
 End Sub
