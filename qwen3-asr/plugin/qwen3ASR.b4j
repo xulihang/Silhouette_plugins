@@ -17,7 +17,7 @@ Module1=qwen3ASRPlugin
 NumberOfFiles=0
 NumberOfLibraries=12
 NumberOfModules=1
-Version=10.5
+Version=10
 @EndOfDesignText@
 #Region Project Attributes 
 	#MainFormWidth: 600

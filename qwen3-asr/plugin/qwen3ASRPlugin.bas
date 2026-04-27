@@ -71,16 +71,20 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			paramsList.Initialize
 			Return paramsList
 		Case "recognize"
-			wait for (recognize(Array(Params.Get("path")),Params.Get("lang"),Params.Get("preferencesMap"))) complete (lines As List)
+			wait for (recognize(Params.Get("path"),Params.Get("lang"),Params.Get("preferencesMap"))) complete (lines As List)
 			Return lines
 		Case "stop"
 			wait for (stop(Params.Get("preferencesMap"))) complete (done As Object)
-		Case "getFileResult"
-			Return ReadJSON(Params.Get("path"))
 		Case "getDefaultParamValues"
 			Return CreateMap()
 		Case "longFileSupported"
 			Return False
+		Case "needManualStop"
+			If DetectOS <> "mac" Then
+				Return True
+			Else
+				Return False
+			End If
 	End Select
 	Return ""
 End Sub
@@ -131,7 +135,6 @@ Public Sub createServer(lang As String,preferences As Map) As ResumableSub
 		End If
 		mUseGPU = useGPU
 		mLanguage = lang
-		Log(args)
 		sh.Initialize("sh",exe,args)
 		sh.WorkingDirectory = File.Combine(File.DirApp,"Qwen3-ASR")
 		sh.Run(-1)
@@ -141,15 +144,29 @@ End Sub
 
 
 Public Sub recognize(path As String,lang As String,preferences As Map) As ResumableSub
-	wait for (createServer(lang,preferences)) complete (done As Object)
+	Dim os As String = DetectOS
+	
+	If os <> "mac" Then
+		wait for (createServer(lang,preferences)) complete (done As Object)
+	End If
+	
 	Dim lines As List
 	lines.Initialize
 	Dim exe As String
 	Dim args As List
 	args.Initialize
-	Dim os As String = DetectOS
+	
 	If os = "mac" Then
-		exe = "ASR"
+		exe = "./ASR"
+		If lang <> "" Then
+			args.Add("--language")
+			args.Add(lang)
+		End If
+		Dim jsonPath As String = path.Replace(".wav",".json")
+		args.Add("--wav-file")
+		args.Add(path)
+		args.Add("--output-file")
+		args.Add(jsonPath)
 		sh.Initialize("sh",exe,args)
 		sh.WorkingDirectory = File.Combine(File.DirApp,"Qwen3-ASR")
 		sh.Run(-1)
@@ -160,8 +177,8 @@ Public Sub recognize(path As String,lang As String,preferences As Map) As Resuma
 		Return lines
 	Else
 		Dim wavFolder As String = File.Combine(File.Combine(File.DirApp,"Qwen3-ASR"),"wav")
-
-		Dim targetPath As String = File.Combine(wavFolder,File.GetName(path))
+        Dim uniqueName As String = DateTime.Now & ".wav"
+		Dim targetPath As String = File.Combine(wavFolder,uniqueName)
 		File.Copy(path,"",targetPath,"")
 		Dim jsonPath As String = targetPath.Replace(".wav",".json")
 		Do While True
@@ -182,8 +199,15 @@ Private Sub ReadJSON(path As String) As List
 	lines.Initialize
 	Dim jsonPath As String = path.Replace(".wav",".json")
 	Dim json As JSONParser
-	json.Initialize(File.ReadString(jsonPath,""))
-	Return json.NextArray
+	Dim os As String = DetectOS
+	If os = "mac" Then
+		json.Initialize(File.ReadString(jsonPath,""))
+		Dim map1 As Map = json.NextObject
+		Return map1.Get("alignment")
+	Else
+		json.Initialize(File.ReadString(jsonPath,""))
+		Return json.NextArray
+	End If
 End Sub
 
 Sub getMap(key As String,parentmap As Map) As Map
