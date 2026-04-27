@@ -17,7 +17,7 @@ Module1=qwen3ASRPlugin
 NumberOfFiles=0
 NumberOfLibraries=12
 NumberOfModules=1
-Version=10
+Version=10.5
 @EndOfDesignText@
 #Region Project Attributes 
 	#MainFormWidth: 600
@@ -39,10 +39,13 @@ Sub AppStart (Form1 As Form, Args() As String)
 	map1.Initialize
 	Dim pref As Map
 	pref.Initialize
+	pref.Put("use_gpu",False)
 	pref.Put("api",CreateMap("qwen3-asr":map1))
-	wait for (n.recognize(Array(File.Combine(File.DirApp,"audio.wav")),"zh",pref)) complete (done As Object)
+	wait for (n.recognize(File.Combine(File.DirApp,"audio.wav"),"wu",pref)) complete (done As Object)
 	
     Log(done)
+	n.stop(pref)
+    ExitApplication
 End Sub
 
 'Return true to allow the default exceptions handler to handle the uncaught exception.
