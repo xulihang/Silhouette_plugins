@@ -47,8 +47,36 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 		Case "getDefaultParamValues"
 			Return CreateMap("url": defaultEndPoint, _
 			                 "model_size": defaultModelSize)
+		Case "getSetupParams"
+			Dim o As Object = CreateMap("readme":"https://github.com/xulihang/Silhouette_plugins/tree/main/faster-whisper")
+			Return o
+		Case "getIsInstalledOrRunning"
+			Wait For (CheckIsRunning(Params.Get("preferencesMap"))) complete (running As Boolean)
+			Return running
 	End Select
 	Return ""
+End Sub
+
+Private Sub CheckIsRunning(pref As Map) As ResumableSub
+	Dim url As String = defaultEndPoint
+	Try
+		url = getMap("fasterWhisper",getMap("api",pref)).GetDefault("url",defaultEndPoint)
+	Catch
+		Log(LastException)
+	End Try
+	Dim result As Boolean = True
+	Dim job As HttpJob
+	job.Initialize("job",Me)
+	job.Head(url)
+	job.GetRequest.Timeout = 500
+	Wait For (job) JobDone(job As HttpJob)
+	If job.Success = False Then
+		If job.Response.StatusCode <> 404 Then
+			result = False
+		End If
+	End If
+	job.Release
+	Return result
 End Sub
 
 
