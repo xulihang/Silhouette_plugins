@@ -37,6 +37,7 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			paramsList.Add("batch_prompt_with_term")
 			paramsList.Add("host")
 			paramsList.Add("model")
+			paramsList.Add("extra_fields")
 			Return paramsList
 		Case "batchtranslate"
 			Dim terms As Map
@@ -64,7 +65,8 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 							 "prompt_with_term":defaultPromptWithTerm, _ 
 			                 "batch_prompt_with_term":defaultBatchPromptWithTerm, _ 
 			                 "host":"https://api.openai.com/v1", _
-							 "model":"gpt-3.5-turbo")
+						 "model":"gpt-4o", _
+						 "extra_fields":"")
 	End Select
 	Return ""
 End Sub
@@ -127,7 +129,7 @@ Sub batchTranslate(sourceList As List, sourceLang As String, targetLang As Strin
 		prompt = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("batch_prompt",defaultBatchPrompt)
 	End If
 	
-	Dim model As String = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("model","gpt-3.5-turbo")
+	Dim model As String = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("model","gpt-4o")
 
 	Dim url As String = host&"/chat/completions"
 	Dim messages As List
@@ -179,6 +181,15 @@ Sub batchTranslate(sourceList As List, sourceLang As String, targetLang As Strin
 	params.Initialize
 	params.Put("model",model)
 	params.Put("messages",messages)
+	Dim extraFieldsStr As String = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("extra_fields","")
+	If extraFieldsStr.Trim <> "" Then
+		Dim extraParser As JSONParser
+		extraParser.Initialize(extraFieldsStr)
+		Dim extraMap As Map = extraParser.NextObject
+		For Each extraKey As String In extraMap.Keys
+			params.Put(extraKey, extraMap.Get(extraKey))
+		Next
+	End If
 	Dim jsonG As JSONGenerator
 	jsonG.Initialize(params)
 	job.PostString(url,jsonG.ToString)
@@ -280,11 +291,20 @@ Sub translate(source As String,sourceLang As String,targetLang As String,prefere
 	End If
 	Log(message)
 	messages.Add(message)
-	Dim model As String = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("model","gpt-3.5-turbo")
+	Dim model As String = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("model","gpt-4o")
 	Dim params As Map
 	params.Initialize
 	params.Put("model",model)
 	params.Put("messages",messages)
+	Dim extraFieldsStr As String = getMap("chatGPT",getMap("mt",preferencesMap)).GetDefault("extra_fields","")
+	If extraFieldsStr.Trim <> "" Then
+		Dim extraParser As JSONParser
+		extraParser.Initialize(extraFieldsStr)
+		Dim extraMap As Map = extraParser.NextObject
+		For Each extraKey As String In extraMap.Keys
+			params.Put(extraKey, extraMap.Get(extraKey))
+		Next
+	End If
 	Dim jsonG As JSONGenerator
 	jsonG.Initialize(params)
 	job.PostString(url,jsonG.ToString)
