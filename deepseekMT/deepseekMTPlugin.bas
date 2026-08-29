@@ -10,6 +10,9 @@ Sub Class_Globals
 	Private defaultPromptWithTerm As String = $"With the help of the terms defined in JSON: {term}, translate the following into {langcode}: {source}"$
 	Private defaultBatchPrompt As String = $"Your task is to translate a text in JSON format into {langcode} and return the text in valid JSON format. You should not mix the values of different keys into one. Here is the JSON string to translate: {source}"$
 	Private defaultBatchPromptWithTerm As String = $"Your task is to translate a text in JSON format into {langcode} and return the text in valid JSON format. You should use the terms defined in JSON: {term}. You should not mix the values of different keys into one. Here is the JSON string to translate: {source}"$
+	Private defaultExtraFields As String = $"{
+	  "thinking": {"type": "disabled"}
+	}"$
 End Sub
 
 'Initializes the object. You can NOT add parameters to this method!
@@ -37,6 +40,7 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 			paramsList.Add("batch_prompt_with_term")
 			paramsList.Add("host")
 			paramsList.Add("model")
+			paramsList.Add("extra_fields")
 			Return paramsList
 		Case "batchtranslate"
 			Dim terms As Map
@@ -64,7 +68,8 @@ public Sub Run(Tag As String, Params As Map) As ResumableSub
 							 "prompt_with_term":defaultPromptWithTerm, _ 
 			                 "batch_prompt_with_term":defaultBatchPromptWithTerm, _ 
 			                 "host":"https://api.deepseek.com", _
-							 "model":"deepseek-chat")
+						 "model":"deepseek-v4-flash", _
+						 "extra_fields":defaultExtraFields)
 	End Select
 	Return ""
 End Sub
@@ -127,7 +132,7 @@ Sub batchTranslate(sourceList As List, sourceLang As String, targetLang As Strin
 		prompt = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("batch_prompt",defaultBatchPrompt)
 	End If
 	
-	Dim model As String = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("model","deepseek-chat")
+	Dim model As String = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("model","deepseek-v4-flash")
 
 	Dim url As String = host&"/chat/completions"
 	Dim messages As List
@@ -179,6 +184,15 @@ Sub batchTranslate(sourceList As List, sourceLang As String, targetLang As Strin
 	params.Initialize
 	params.Put("model",model)
 	params.Put("messages",messages)
+	Dim extraFieldsStr As String = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("extra_fields",defaultExtraFields)
+	If extraFieldsStr.Trim <> "" Then
+		Dim extraParser As JSONParser
+		extraParser.Initialize(extraFieldsStr)
+		Dim extraMap As Map = extraParser.NextObject
+		For Each extraKey As String In extraMap.Keys
+			params.Put(extraKey, extraMap.Get(extraKey))
+		Next
+	End If
 	Dim jsonG As JSONGenerator
 	jsonG.Initialize(params)
 	job.PostString(url,jsonG.ToString)
@@ -280,11 +294,20 @@ Sub translate(source As String,sourceLang As String,targetLang As String,prefere
 	End If
 	Log(message)
 	messages.Add(message)
-	Dim model As String = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("model","deepseek-chat")
+	Dim model As String = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("model","deepseek-v4-flash")
 	Dim params As Map
 	params.Initialize
 	params.Put("model",model)
 	params.Put("messages",messages)
+	Dim extraFieldsStr As String = getMap("deepseek",getMap("mt",preferencesMap)).GetDefault("extra_fields",defaultExtraFields)
+	If extraFieldsStr.Trim <> "" Then
+		Dim extraParser As JSONParser
+		extraParser.Initialize(extraFieldsStr)
+		Dim extraMap As Map = extraParser.NextObject
+		For Each extraKey As String In extraMap.Keys
+			params.Put(extraKey, extraMap.Get(extraKey))
+		Next
+	End If
 	Dim jsonG As JSONGenerator
 	jsonG.Initialize(params)
 	job.PostString(url,jsonG.ToString)
