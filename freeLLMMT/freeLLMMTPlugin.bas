@@ -46,7 +46,12 @@ Sub batchTranslate(sourceList As List,sourceLang As String,targetLang As String,
 	Dim job As HttpJob
 	job.Initialize("job",Me)
 	Dim url As String
-	url=getMap("freeLLM",getMap("api",preferencesMap)).GetDefault("url","http://service.basiccat.org:5000/translate/batch")
+	Try
+		url=getMap("freeLLM",getMap("api",preferencesMap)).GetDefault("url","http://service.basiccat.org:5000/translate/batch")
+	Catch
+		Log(LastException)
+		url = "http://service.basiccat.org:5000/translate/batch"
+	End Try
 	Dim body As Map
 	body.Initialize
 	body.Put("texts",sourceList)
@@ -80,7 +85,12 @@ Sub translate(source As String,sourceLang As String,targetLang As String,prefere
 	Dim job As HttpJob
 	job.Initialize("job",Me)
 	Dim url As String
-	url=getMap("freeLLM",getMap("api",preferencesMap)).GetDefault("url","http://service.basiccat.org:5000/translate/batch")
+	Try
+		url=getMap("freeLLM",getMap("api",preferencesMap)).GetDefault("url","http://service.basiccat.org:5000/translate/batch")
+	Catch
+		Log(LastException)
+		url = "http://service.basiccat.org:5000/translate/batch"
+	End Try
 	Dim texts As List
 	texts.Initialize
 	texts.Add(source)
