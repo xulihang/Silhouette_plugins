@@ -14,7 +14,7 @@ GPU acceleration is supported (Vulkan and DirectML for Windows/Linux and Metal f
    * [Qwen3-ASR-1.7B-gguf.zip](https://github.com/HaujetZhao/Qwen3-ASR-GGUF/releases/download/models/Qwen3-ASR-1.7B-gguf.zip)
    * [Qwen3-ForceAligner-0.6B-gguf.zip](https://github.com/HaujetZhao/Qwen3-ASR-GGUF/releases/download/models/Qwen3-ForceAligner-0.6B-gguf.zip)
 
-It is based on this project: <https://github.com/HaujetZhao/Qwen3-ASR-GGUF>
+It is based on this project: <https://github.com/HaujetZhao/Qwen3-ASR-GGUF> (modified version used in this plugin: <https://github.com/xulihang/Qwen3-ASR-GGUF/tree/server>)
 
 ### macOS
 
